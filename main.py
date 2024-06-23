@@ -56,9 +56,12 @@ def check_news(start_time: int):
             newsfeed = module.vk.newsfeed.get(count=100, start_time=start_time, max_photos=10)
             posts = newsfeed.get("items")
             if posts:
-                start_time = posts[0]["date"] + 1
+                last_post_time = start_time
                 for post in posts[::-1]:
+                    if post["date"] > last_post_time:
+                        last_post_time = post["date"]
                     check_content(post)
+                start_time = last_post_time + 1
             retries = 0  # Сбросить счетчик повторных попыток при успешном запросе
         except Exception as e:
             retries += 1
@@ -109,7 +112,7 @@ def get_content(post):
     text = post.get("text", "")
 
     # Добавляем автора и текст в начало сообщения
-    comment = f"Источник: **{author}**\n\n{text}\n"
+    comment = f"Источник: <b>{author}</b>\n\n{text}\n"
 
     for att in post["attachments"]:
         att_type = att.get("type")
@@ -160,18 +163,21 @@ def get_content(post):
             attachments = attachment.get("url")
 
         if attachments:
-            attach_list.append({
-                "type": att_type,
-                "link": attachments,
-                "title": title,
-                "preview": preview,
-                "comment": comment  
-            })
+            attach_list.append(
+                {
+                    "type": att_type,
+                    "link": attachments,
+                    "title": title,
+                    "preview": preview,
+                    "comment": comment,
+                }
+            )
 
     if photo_group:
         attach_list.append({"type": "photo", "link": photo_group, "comment": comment})
 
     return attach_list
+
 
 # Функция для отправки в Telegram
 def send_content(attachments):
@@ -184,28 +190,53 @@ def send_content(attachments):
 
         try:
             if att_type == "photo":
-                media_photo = [types.InputMediaPhoto(photo_url, caption=comment) for photo_url in link]
-                module.bot.send_media_group(telegram_chat, media_photo)
+                media_photo = [
+                    types.InputMediaPhoto(photo_url, caption=comment, parse_mode="HTML")
+                    for photo_url in link
+                ]
+                module.bot.send_media_group(
+                    telegram_chat, media_photo
+                )
                 logging.info("Изображение отправлено.")
 
             elif att_type == "video":
-                module.bot.send_media_group(telegram_chat,[types.InputMediaPhoto(preview, caption=f"{comment}\n{link}")])
+                caption = f"{comment}<a href='{link}'>Открыть видео</a>"
+                module.bot.send_media_group(
+                    telegram_chat,
+                    [
+                        types.InputMediaPhoto(
+                            preview, caption=caption, parse_mode="HTML"
+                        )
+                    ],
+                )
                 logging.info("Видео отправлено.")
 
             elif att_type == "album":
-                module.bot.send_media_group(telegram_chat, [types.InputMediaPhoto(preview, caption=f"{comment}\n{title}\n{link}")])
+                caption = f"{comment}<a href='{link}'>Открыть альбом</a>"
+                module.bot.send_media_group(
+                    telegram_chat,
+                    [
+                        types.InputMediaPhoto(
+                            preview, caption=caption, parse_mode="HTML"
+                        )
+                    ],
+                )
                 logging.info("Альбом отправлен.")
 
             elif att_type == "link":
-                module.bot.send_message(telegram_chat, f"{comment}\n{title}\n{link}")
+                message = f"{comment}<a href='{link}'>Перейти по ссылке</a>"
+                module.bot.send_message(telegram_chat, message, parse_mode="HTML")
                 logging.info("Ссылка отправлена.")
 
             elif att_type in {"doc", "gif"}:
-                module.bot.send_document(telegram_chat, link, caption=comment)
+                module.bot.send_document(
+                    telegram_chat, link, caption=comment, parse_mode="HTML"
+                )
                 logging.info("Документ отправлен.")
 
             elif att_type == "other":
-                module.bot.send_message(telegram_chat, f"{comment}\n{title}\n{link}")
+                message = f"{comment}<a href='{link}'>Открыть</a>"
+                module.bot.send_message(telegram_chat, message, parse_mode="HTML")
                 logging.info("Отправлено.")
 
         except Exception as e:
