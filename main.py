@@ -102,17 +102,22 @@ def get_content(post):
     if post.get("source_id") > 0:
         # Пост от пользователя
         author_info = module.vk.users.get(user_ids=post.get("source_id"))[0]
-        author = f"{author_info.get('first_name')} {author_info.get('last_name')}"
+        author_name = f"{author_info.get('first_name')} {author_info.get('last_name')}"
+        author_link = f"https://vk.com/id{post.get('source_id')}"
     else:
         # Пост от сообщества или паблика
         group_info = module.vk.groups.getById(group_ids=abs(post.get("source_id")))[0]
-        author = group_info.get("name")
+        author_name = group_info.get("name")
+        author_link = f"https://vk.com/club{abs(post.get('source_id'))}"
+
+    # Создаем HTML-гиперссылку на автора
+    author_hyperlink = f'<a href="{author_link}">{author_name}</a>'
 
     # Получаем текст поста, если он есть
     text = post.get("text", "")
 
     # Добавляем автора и текст в начало сообщения
-    comment = f"Источник: <b>{author}</b>\n\n{text}\n"
+    comment = f"🌐 Источник: {author_hyperlink}\n\n{text}\n"
 
     for att in post["attachments"]:
         att_type = att.get("type")
