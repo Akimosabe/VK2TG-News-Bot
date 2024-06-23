@@ -4,10 +4,9 @@
 
 ## Используемые библиотеки
 
-pip install telebot
+**pip install telebot**
 
-pip install vk_api
-
+**pip install vk_api** 
 
 ## 
 
