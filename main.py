@@ -191,9 +191,12 @@ def send_content(attachments):
         try:
             if att_type == "photo":
                 media_photo = [
-                    types.InputMediaPhoto(photo_url, caption=comment, parse_mode="HTML")
-                    for photo_url in link
+                    types.InputMediaPhoto(photo_url) for photo_url in link
                 ]
+                # Добавляем подпись только к первой фотографии
+                media_photo[0].caption = comment
+                media_photo[0].parse_mode = "HTML"
+                
                 module.bot.send_media_group(
                     telegram_chat, media_photo
                 )
