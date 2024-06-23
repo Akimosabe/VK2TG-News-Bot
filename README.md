@@ -10,4 +10,4 @@
 
 ## 
 
-![alt text](https://web.telegram.org/537e5d9a-3408-439d-9e6a-a5b7077492e1)
+![scr](blob:https://web.telegram.org/537e5d9a-3408-439d-9e6a-a5b7077492e1)
