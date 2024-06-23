@@ -1,10 +1,10 @@
 {
     "VK": {
-      "tokenvk": "vk1.a.zm1rz-I4XVArIcR34ipWKuB55geyPsel16mziDIOhDVAc72--ry43AjpE3W9Dt-F7MYjfvfisYkat7puzIE1NG-gyAa7EQ4ULdu9N8RNszYdF3z_LjYDsWDI74OwWDWI5tx1aOnzhij2nAlJ6lgjN-KgqoUh6XYerv4xiv8D7e0kbr4DLA81sB9z9AjIBMcmB7N6yYKsGbXAWNVOoiSOXg"
+      "tokenvk": ""
     },
     "Telegram": {
-      "tokentg": "7325453278:AAHtg0VT7DqK19pETt34d_EHWM-bKt0qm3U",
-      "chat": "-1002196127512"
+      "tokentg": "",
+      "chat": ""
     },
     "Settings": {
       "time_check": 60,
