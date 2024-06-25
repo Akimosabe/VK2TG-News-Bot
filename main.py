@@ -58,9 +58,19 @@ def check_news(start_time: int):
             if posts:
                 last_post_time = start_time
                 for post in posts[::-1]:
-                    if post["date"] > last_post_time:
-                        last_post_time = post["date"]
-                    check_content(post)
+                    try:
+                        # Пропуск репостов
+                        if post.get("copy_history"):
+                            logging.info("Репост пропущен.")
+                            continue
+                        # В случае вощникновения ошибок пост пропускается для избежания остановки программы 
+                        if post["date"] > last_post_time:
+                            last_post_time = post["date"]
+                        check_content(post)
+                    except Exception as e:
+                        logging.error(f"Ошибка при обработке поста: {e}. Пост будет пропущен.")
+                        continue
+
                 start_time = last_post_time + 1
             retries = 0  # Сбросить счетчик повторных попыток при успешном запросе
         except Exception as e:
